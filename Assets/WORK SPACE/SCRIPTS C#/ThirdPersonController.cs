@@ -46,7 +46,7 @@ public class Player : MonoBehaviour
 
 
         //Check if Right mouse button is pressed or not
-        if (Input.GetKey(KeyCode.Mouse1) || 2>1)
+        if (Input.GetKey(KeyCode.Mouse1))
         {
             //set head rig to 1
             headLookRig.weight = Mathf.Lerp(headLookRig.weight, 1f, animSpeed * Time.deltaTime);
