@@ -28,6 +28,7 @@ public class Player : MonoBehaviour
     [Header("RIGGING COMPONENTS")]
     public Rig headLookRig;
     public Rig pistolRig;
+    public Rig pistolOnHandRig;
 
 
 
@@ -46,12 +47,12 @@ public class Player : MonoBehaviour
 
 
         //Check if Right mouse button is pressed or not
-        if (Input.GetKey(KeyCode.Mouse1))
+        if (Input.GetKey(KeyCode.Mouse1) || Input.GetKey(KeyCode.Mouse0))
         {
-            //set head rig to 1
-            headLookRig.weight = Mathf.Lerp(headLookRig.weight, 1f, animSpeed * Time.deltaTime);
-
-            pistolRig.weight = Mathf.Lerp(pistolRig.weight, 1f, animSpeed * Time.deltaTime);
+            //________________________________PISTOL ANIMATION__________________________________________
+            headLookRig.weight = Mathf.Lerp(headLookRig.weight, 1f, animSpeed * 2 * Time.deltaTime);
+            pistolRig.weight = Mathf.Lerp(pistolRig.weight, 1f, animSpeed * 2 * Time.deltaTime);
+            pistolOnHandRig.weight = Mathf.Lerp(pistolOnHandRig.weight, 0f, animSpeed * 2 * Time.deltaTime);
 
             //set Aiming Layer to 1
             animator.SetLayerWeight(1, Mathf.Lerp(animator.GetLayerWeight(1), 1f, animSpeed * Time.deltaTime));
@@ -85,10 +86,10 @@ public class Player : MonoBehaviour
         }
         else
         {
-            //set head rig to 0
+            //________________________________PISTOL ANIMATION__________________________________________
             headLookRig.weight = Mathf.Lerp(headLookRig.weight, 0f, animSpeed * Time.deltaTime);
-
             pistolRig.weight = Mathf.Lerp(pistolRig.weight, 0f, animSpeed * Time.deltaTime);
+            pistolOnHandRig.weight = Mathf.Lerp(pistolOnHandRig.weight, 1f, animSpeed * 100 * Time.deltaTime);
 
             //set Aiming Layer to 0
             animator.SetLayerWeight(1, Mathf.Lerp(animator.GetLayerWeight(1), 0f, animSpeed * Time.deltaTime));
