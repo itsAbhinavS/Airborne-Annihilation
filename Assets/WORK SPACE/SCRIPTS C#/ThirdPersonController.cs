@@ -76,7 +76,7 @@ public class Player : MonoBehaviour
 
             // Rotate character in forward direction 
             Quaternion targetRotation = Quaternion.Euler(0, cameraTransform.eulerAngles.y, 0);
-            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
+            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * 20f);
 
             animator.SetBool("IsAiming", true);
             IsAiming = true;
