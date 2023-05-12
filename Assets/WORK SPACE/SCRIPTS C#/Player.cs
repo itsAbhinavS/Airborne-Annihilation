@@ -31,6 +31,17 @@ public class Player : MonoBehaviour
     public Rig pistolOnHandRig;
 
 
+    [Space(30)]
+    [Header("SHOOTING COMPONENTS")]
+    public float fireRate = 15f;
+    public float nextTimeToFire = 0f;
+    public bool fire = false;
+    public LayerMask aimColliderLayerMask = new LayerMask();
+    public Transform pfBulletProjectile;
+    public Transform spawnBulletPosition;
+    private Transform crossHair;
+    private Vector3 mouseWorldPosition;
+
 
     private void Start()
     {
@@ -39,6 +50,24 @@ public class Player : MonoBehaviour
     }
 
     void Update()
+    {
+        mouseWorldPosition = Vector3.zero;
+
+        Vector3 origin = spawnBulletPosition.position;
+        Vector3 direction = spawnBulletPosition.TransformDirection(Vector3.forward);
+
+        Transform hitTransform = null;
+        if (Physics.Raycast(origin, direction, out RaycastHit raycastHit, 999f, aimColliderLayerMask))
+        {
+            //debugTransform.position = raycastHit.point;
+            mouseWorldPosition = raycastHit.point;
+            hitTransform = raycastHit.transform;
+        }
+
+        MovementAimShoot();
+    }
+
+    public void MovementAimShoot() 
     {
         // Taking user input and store in input(Vector2 variable)
         horizontalMove = Input.GetAxis("Horizontal");
@@ -62,13 +91,13 @@ public class Player : MonoBehaviour
             playerSpeed = 4f;
 
             //Animation Controller
-            animator.SetFloat("InputX", Mathf.Lerp(animator.GetFloat("InputX"), move.x, animSpeed * Time.deltaTime * 5f ));
-            animator.SetFloat("InputY", Mathf.Lerp(animator.GetFloat("InputY"), move.z, animSpeed * Time.deltaTime * 5f ));
+            animator.SetFloat("InputX", Mathf.Lerp(animator.GetFloat("InputX"), move.x, animSpeed * Time.deltaTime * 5f));
+            animator.SetFloat("InputY", Mathf.Lerp(animator.GetFloat("InputY"), move.z, animSpeed * Time.deltaTime * 5f));
 
             //Moving the controller forward where the camera is looking
             move = move.x * cameraTransform.right.normalized + move.z * cameraTransform.forward.normalized;
             move.y = 0;
-            
+
             controller.Move(move * Time.deltaTime * playerSpeed);
 
             playerVelocity.y += gravityValue * Time.deltaTime * downSpeed;
@@ -83,6 +112,14 @@ public class Player : MonoBehaviour
 
             //Set moveSpeed
             playerSpeed = 7f;
+
+            //Spawn a bullet
+            if (Input.GetKey(KeyCode.Mouse0) && Time.time >= nextTimeToFire)
+            {
+                nextTimeToFire = Time.time + 1f / fireRate;
+                Shoot();
+            }
+
         }
         else
         {
@@ -121,4 +158,19 @@ public class Player : MonoBehaviour
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
         }
     }
+
+
+    public void Shoot() 
+    {
+        //shoot a bullet from spawn position to aimDir position
+        Vector3 aimDir = (mouseWorldPosition - spawnBulletPosition.position).normalized;
+        Instantiate(pfBulletProjectile, spawnBulletPosition.position, Quaternion.LookRotation(aimDir, Vector3.up));
+        fire = false;
+    }
+
 }
+
+
+
+
+

@@ -1,54 +1,92 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class MainMenuGameController : MonoBehaviour
 {
-    public float duration = 3.0f;
-    private Vector3 endPosition;
+    public Transform playButton;
+    public Transform quitButton;
 
+    private bool hoverPlay;
+    private bool hoverQuit;
 
-    public void OnHover(GameObject woodButton) 
+    public void onhover(int i) 
     {
-        StartCoroutine(LerpPosition(woodButton));
+        if (i == 1) hoverPlay = true;
+        if (i == 2) hoverQuit = true;
     }
 
-    IEnumerator LerpPosition(GameObject woodButton)
+    public void nothover(int i)
     {
-        float elapsedTime = 0.0f;    // The elapsed time since the lerp started
-        Vector3 currentPosition = woodButton.transform.position;    // The current position of the lerp
-        endPosition =  new Vector3(woodButton.transform.position.x, woodButton.transform.position.y, 1.7f);
+        if (i == 1) hoverPlay = false;
+        if (i == 2) hoverQuit = false;
+    }
 
-        while (elapsedTime < duration)    // Loop until the duration is reached
+    private void Update()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);    // Create a ray from the camera to the mouse pointer
+        RaycastHit hit;    // The raycast hit information
+
+        if (Physics.Raycast(ray, out hit))    // Cast the ray and check if it hits something
         {
-            currentPosition = Vector3.Lerp(currentPosition, endPosition, elapsedTime / duration);    // Update the current position of the lerp using Lerp
-            woodButton.transform.position = currentPosition;    // Update the position of the object
-            elapsedTime += Time.deltaTime;    // Increment the elapsed time by the frame time
-            yield return null;    // Yield until the next frame
+            Debug.Log("Hit object with tag: " + hit.collider.tag);
+            if (hit.collider.CompareTag("playbutton"))
+            {
+                hoverPlay = true;
+                if (Input.GetMouseButtonDown(0)) 
+                {
+                    LoadScene();
+                }
+            }
+            else 
+            {
+                hoverPlay = false;
+            }
+
+            if (hit.collider.CompareTag("quitbutton"))
+            {
+                hoverQuit = true;
+                if (Input.GetMouseButtonDown(0))
+                {
+                    QuitGame();
+                }
+            }
+            else
+            {
+                hoverQuit = false;
+            }
+        }
+        
+
+
+
+        if (hoverPlay)
+        {
+            playButton.position = Vector3.Lerp(playButton.position, new Vector3(0, 0, 1.7f), 10 * Time.deltaTime);
+        }
+        else 
+        {
+            playButton.position = Vector3.Lerp(playButton.position, new Vector3(0, 0, 1f), 10 * Time.deltaTime);
         }
 
-        woodButton.transform.position = endPosition;    // Set the final position to the end position
-    }
-
-    public void NotOnHover(GameObject woodButton)
-    {
-        StartCoroutine(LerpPositionBack(woodButton));
-    }
-
-    IEnumerator LerpPositionBack(GameObject woodButton)
-    {
-        float elapsedTime = 0.0f;    // The elapsed time since the lerp started
-        Vector3 currentPosition = woodButton.transform.position;    // The current position of the lerp
-        endPosition = new Vector3(woodButton.transform.position.x, woodButton.transform.position.y, 1f);
-
-        while (elapsedTime < duration)    // Loop until the duration is reached
+        if (hoverQuit)
         {
-            currentPosition = Vector3.Lerp(currentPosition, endPosition, elapsedTime / duration);    // Update the current position of the lerp using Lerp
-            woodButton.transform.position = currentPosition;    // Update the position of the object
-            elapsedTime += Time.deltaTime;    // Increment the elapsed time by the frame time
-            yield return null;    // Yield until the next frame
+            quitButton.position = Vector3.Lerp(quitButton.position, new Vector3(0, -0.75f, 1.7f), 10 * Time.deltaTime);
         }
+        else
+        {
+            quitButton.position = Vector3.Lerp(quitButton.position, new Vector3(0, -0.75f, 1f), 10 * Time.deltaTime);
+        }
+    }
 
-        woodButton.transform.position = endPosition;    // Set the final position to the end position
+    public void QuitGame() 
+    {
+        Application.Quit();
+    }
+
+    public void LoadScene() 
+    {
+        SceneManager.LoadScene(1);
     }
 }
