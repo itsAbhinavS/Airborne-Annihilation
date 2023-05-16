@@ -11,4 +11,11 @@ public class Bullet : MonoBehaviour
         Rigidbody bulletRigidbody = GetComponent<Rigidbody>();
         bulletRigidbody.velocity = transform.forward * speed;
     }
+
+    /*private void OnCollisionEnter(Collision other)
+    {
+        Destroy(gameObject);
+    }*/
 }
+
+
