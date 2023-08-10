@@ -2,70 +2,35 @@ using UnityEngine;
 
 public class ThirdPersonCameraController : MonoBehaviour
 {
-    [SerializeField] private Transform playerTransform;
-    [SerializeField] private float cameraDistance = 5f;
-    [SerializeField] private float cameraSensitivity = 3f;
-    [SerializeField] private float breathSpeed = 2f;
-    [SerializeField] private float breathIntensity = 0.1f;
-    [SerializeField] private float minVerticalAngle = -15f;
-    [SerializeField] private float maxVerticalAngle = 60f;
+    public Transform target;
+    public float distance = 10.0f;
+    public float rotationSpeed = 100.0f;
 
-    private Transform cameraTransform;
-    private float xRotation = 0f;
-    private float yRotation = 0f;
-    private float breathOffset = 0f;
-    private Vector3 velocity = Vector3.zero;
-
-    void Start()
+    void Update()
     {
-        cameraTransform = Camera.main.transform;
-        Cursor.lockState = CursorLockMode.Locked; // Lock cursor to center of screen
+        // Calculate the camera's rotation.
+        Vector3 targetPosition = target.position;
+        Vector3 cameraPosition = transform.position;
+        Vector3 deltaPosition = targetPosition - cameraPosition;
+        Quaternion rotation = Quaternion.LookRotation(deltaPosition);
+
+        // Rotate the camera.
+        transform.rotation = rotation * transform.rotation;
+
+        // Move the camera towards the target.
+        Vector3 offset = transform.forward * Time.deltaTime * distance;
+        transform.position += offset;
     }
-
-    /*void LateUpdate()
-    {
-        // Camera movement
-        float mouseX = Input.GetAxis("Mouse X") * cameraSensitivity;
-        float mouseY = Input.GetAxis("Mouse Y") * cameraSensitivity;
-        xRotation -= mouseY;
-        xRotation = Mathf.Clamp(xRotation, minVerticalAngle, maxVerticalAngle);
-        yRotation += mouseX;
-        Quaternion rotation = Quaternion.Euler(xRotation, yRotation, 0f);
-
-        // Calculate camera offset based on player rotation
-        Vector3 cameraOffset = rotation * new Vector3(2f, 0f, 0f); // Offset in the x-axis
-
-        // Camera position
-        Vector3 cameraPosition = playerTransform.position - cameraTransform.forward * cameraDistance + cameraOffset;
-        cameraPosition += Vector3.up * Mathf.Sin(breathOffset) * breathIntensity;
-        cameraTransform.position = cameraPosition;
-        cameraTransform.rotation = rotation;
-        breathOffset += breathSpeed * Time.deltaTime;
-    }*/
-
 
     void LateUpdate()
     {
-        // Camera movement
-        float mouseX = Input.GetAxis("Mouse X") * cameraSensitivity;
-        float mouseY = Input.GetAxis("Mouse Y") * cameraSensitivity;
-        xRotation -= mouseY;
-        xRotation = Mathf.Clamp(xRotation, minVerticalAngle, maxVerticalAngle);
-        yRotation += mouseX;
-
-        // Smooth camera rotation
-        Quaternion rotation = Quaternion.Euler(xRotation, yRotation, 0f);
-        cameraTransform.rotation = Quaternion.Lerp(cameraTransform.rotation, rotation, Time.deltaTime * 30);
-
-        // Calculate camera offset based on player rotation
-        Vector3 cameraOffset = rotation * new Vector3(2f, 0f, 0f); // Offset in the x-axis
-
-        // Camera position
-        Vector3 targetPosition = playerTransform.position - cameraTransform.forward * cameraDistance + cameraOffset;
-        Vector3 smoothedPosition = Vector3.SmoothDamp(cameraTransform.position, targetPosition, ref velocity, 0.01f);
-        cameraTransform.position = smoothedPosition;
-
-        breathOffset += breathSpeed * Time.deltaTime;
+        // Handle the camera rotation when the mouse is moved.
+        if (Input.GetMouseButton(0))
+        {
+            float x = Input.GetAxis("Mouse X");
+            float y = Input.GetAxis("Mouse Y");
+            transform.rotation = Quaternion.Euler(x * rotationSpeed * Time.deltaTime, y * rotationSpeed * Time.deltaTime, 0);
+        }
     }
 
 }
